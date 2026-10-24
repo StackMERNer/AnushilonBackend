@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+
+# TypeScript build output
+/dist
+/build
+
+# Logs
+*.log
+*.log.*
+
+# Environment variable files
+.env
+
+# IDEs and text editors
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# NPM package lock files (optional, but useful in some workflows)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Next.js / Vercel (if applicable)
+.next/
+
+# Jest coverage output (if using Jest for testing)
+coverage/
+
+# Temporary files
+*.swp
+*.swo
+
+src/migrations/migration_warnings.json
+
+normalized-html-analysis-report.json
+normalized-html-analysis-report.txt
+html_to_json_explanations_log.json
+html_to_json_migration_log.json
+
+explanation-html-analysis-report.json
+explanation-html-analysis-report.txt
+
+generated-pdfs
