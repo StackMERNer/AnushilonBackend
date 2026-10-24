@@ -1,7 +1,6 @@
 import { Schema, model, Document, Types, models } from "mongoose";
 
 export interface ISubject {
-  refId: string;
   name: string;
   stream: string;
   chapters: Types.ObjectId[];
@@ -16,12 +15,6 @@ export interface ISubjectDocument extends ISubject, Document {}
 
 const subjectSchema = new Schema<ISubjectDocument>(
   {
-    refId: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
     name: {
       type: String,
       required: true,
