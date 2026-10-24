@@ -5,8 +5,12 @@ import { User } from "../models/User";
 import { DecodedIdToken } from "firebase-admin/auth";
 
 export function verifyInternalSecret(provided: string | undefined): boolean {
-  const expected = process.env.INTERNAL_SECRET!;
-  if (!provided || provided.length !== expected.length) return false;
+  const expected = process.env.INTERNAL_SECRET;
+
+  if (!expected || !provided || provided.length !== expected.length) {
+    return false;
+  }
+
   return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
 }
 
@@ -27,8 +31,8 @@ export const ensureUserRecord: RequestHandler = async (
       return;
     }
 
-    const token = authHeader.split("Bearer ")[1];
-    // Session cookies only ever arrive from our own server — require the internal secret.
+    const token = authHeader.slice(7);
+
     if (tokenType === "session" && !verifyInternalSecret(internalSecret)) {
       res.status(403).json({ message: "Forbidden." });
       return;
@@ -41,38 +45,88 @@ export const ensureUserRecord: RequestHandler = async (
         tokenType === "session"
           ? await adminAuth.verifySessionCookie(token, true)
           : await adminAuth.verifyIdToken(token);
-    } catch (err) {
-      res.status(401).json({ message: "Invalid or expired token." });
+    } catch {
+      res.status(401).json({
+        message: "Invalid or expired token.",
+      });
       return;
     }
 
-    const uid = decoded.uid;
-    const email = decoded.email ?? null;
-    const name = decoded.name;
-    const photoURL = decoded.picture;
+    const { uid, email, name, picture: photoURL } = decoded;
 
     if (!uid) {
       res.status(401).json({ message: "Invalid token." });
       return;
     }
 
-    // Find user by firebaseUid
+    // First, find the user by Firebase UID.
     let user = await User.findOne({ uid });
 
-    // Fallback: email lookup
     if (!user) {
-      if (!email) {
-        res.status(400).json({ message: "User has no email." });
-        return;
+      // Preserve the existing email migration/fallback behavior.
+      if (email) {
+        user = await User.findOne({ email });
       }
 
-      user = await User.findOne({ email });
       if (user) {
-        user.uid = uid;
-        await user.save();
+        // Another request may have assigned this UID in the meantime.
+        if (user.uid !== uid) {
+          try {
+            user.uid = uid;
+            await user.save();
+          } catch (err: any) {
+            if (err?.code !== 11000) {
+              throw err;
+            }
+
+            // A concurrent request may have completed the migration.
+            user = await User.findOne({ uid });
+
+            if (!user) {
+              throw err;
+            }
+          }
+        }
       } else {
-        user = await User.create({ uid, email, name, photoURL });
+        // Atomic creation: concurrent requests cannot create
+        // separate records for the same UID.
+        try {
+          user = await User.findOneAndUpdate(
+            { uid },
+            {
+              $setOnInsert: {
+                uid,
+                email: email ?? null,
+                name,
+                photoURL,
+              },
+            },
+            {
+              upsert: true,
+              new: true,
+              setDefaultsOnInsert: true,
+            },
+          );
+        } catch (err: any) {
+          // Handle a race with another request that inserted the UID.
+          if (err?.code !== 11000) {
+            throw err;
+          }
+
+          user = await User.findOne({ uid });
+
+          if (!user) {
+            throw err;
+          }
+        }
       }
+    }
+
+    if (!user) {
+      res.status(500).json({
+        message: "Unable to resolve user record.",
+      });
+      return;
     }
 
     (req as any).firebaseUid = uid;
@@ -81,6 +135,9 @@ export const ensureUserRecord: RequestHandler = async (
     next();
   } catch (err) {
     console.error("Error in ensureUserRecord:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };

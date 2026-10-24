@@ -27,7 +27,7 @@ dotenv.config();
 const PORT = Number(process.env.PORT) || 5000;
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://proshnokosh.com",
+  "https://anushilon.net",
   "https://www.proshnokosh.com",
   "http://192.168.0.103:3000",
 ];
