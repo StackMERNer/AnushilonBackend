@@ -40,7 +40,6 @@ export const getFilteredQuestions = async (
       subject,
       chapter,
       topics,
-      paper,
       boards,
       schools,
       universities,
@@ -54,44 +53,11 @@ export const getFilteredQuestions = async (
 
     let query: Record<string, unknown> = {};
 
-    if (!paper) {
-      res.status(400).json({ message: "একটি প্রশ্নপত্র নির্বাচন করুন" });
-      return;
-    }
     const authUser = (req as any).user;
-
-    const questionPaper: IQuestionPaper | null = (await QuestionPaper.findOne({
-      _id: new Types.ObjectId(paper),
-      createdBy: authUser?._id,
-    }).lean()) as any as IQuestionPaper;
-
-    if (!questionPaper) {
-      res.status(400).json({ message: "প্রশ্নপত্রটি পাওয়া যায় নি।" });
-      return;
-    }
-    const selectedQuestions = questionPaper.sections
-      .map((section) =>
-        section.items
-          .filter((item) => item.type === "question")
-          .map((item) => item.question),
-      )
-      .flat()
-      .filter(Boolean);
 
     // return if there's no subject selected
     if (!subject) {
       res.status(400).json({ message: "একটি বিষয় নির্বাচন করুন" });
-      return;
-    }
-
-    const isSubjectInPaper = (questionPaper as IQuestionPaper).subjects.some(
-      (paperSubject) => paperSubject.subject.toString() === subject,
-    );
-
-    if (!isSubjectInPaper) {
-      res.status(400).json({
-        message: "এই বিষয়টি প্রশ্নপত্রে নির্বাচিত নেই।",
-      });
       return;
     }
 
@@ -184,11 +150,6 @@ export const getFilteredQuestions = async (
       limit = Math.min(limit, 20);
     }
 
-    if (selectedOnly === "true") {
-      query = {
-        _id: { $in: selectedQuestions },
-      };
-    }
     // 4. Pagination Calculation
     const skip = (page - 1) * limit;
     // 5. Database Execution

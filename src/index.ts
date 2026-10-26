@@ -77,7 +77,7 @@ app.use("/users", userRoutes);
 app.use("/images", imageRoutes);
 app.use("/question-papers", paperRoutes);
 app.use("/academic", academicTreeRoutes);
-app.use("/questions", questionRoutes);
+app.use("/question-bank", questionRoutes);
 
 app.use("/question-pdf", questionPdfRoutes);
 app.use("/content-nodes", contentNodeRoutes);
