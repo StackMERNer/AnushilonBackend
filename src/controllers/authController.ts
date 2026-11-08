@@ -38,7 +38,9 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const me = async (req: Request, res: Response) => {
-  const user = await User.findOne({ _id: (req as any).user?._id }).lean();
+  const user = await User.findOne({ _id: (req as any).user?._id })
+    .populate("class", "name")
+    .lean();
   if (!user) {
     res.status(404).json({ message: "Not found" });
     return;
