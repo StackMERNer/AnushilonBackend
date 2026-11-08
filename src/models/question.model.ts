@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types, models } from "mongoose";
+import { deriveStudyMode } from "../config/questionTypeConfig";
 
 // ============================================================================
 // 1. TYPES & ENUMS
@@ -45,6 +46,7 @@ export interface IQuestion {
   boards: IQuestionBoard[];
   schools: IQuestionSchool[];
   universities: IQuestionUniversity[];
+  studyMode: string;
 
   // Metadata & Taxonomy
   rating?: number;
@@ -221,6 +223,12 @@ const questionSchema = new Schema<IQuestionDocument>(
       type: [questionUniversitySchema],
       default: [],
     },
+    studyMode: {
+      type: String,
+      enum: ["auto", "self", "none"],
+      default: "self",
+      index: true,
+    },
 
     // Metadata & Taxonomy
     rating: {
@@ -262,6 +270,16 @@ questionSchema.index({ chapter: 1, topic: 1, type: 1 });
 questionSchema.index({ subject: 1, type: 1 });
 
 questionSchema.index({ subject: 1, chapter: 1, "boards.board": 1 });
+questionSchema.index({ chapter: 1, studyMode: 1 });
+questionSchema.index({ topic: 1, studyMode: 1 });
+
+// New questions get the right mode automatically
+questionSchema.pre("validate", function (next) {
+  if (this.isNew || this.isModified("type")) {
+    this.studyMode = deriveStudyMode(this as any);
+  }
+  next();
+});
 
 export const QuestionModel =
   models.Question || model<IQuestionDocument>("Question", questionSchema);

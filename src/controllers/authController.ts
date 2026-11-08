@@ -53,7 +53,13 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     res.status(404).send({ message: "Unathorized. user _id not found!" });
     return;
   }
-  const allowedFields: (keyof IUser)[] = ["name", "institute", "photoURL"];
+  const allowedFields: (keyof IUser)[] = [
+    "name",
+    "institute",
+    "photoURL",
+    "class",
+    "stream",
+  ];
   // Filter updates to only include allowed fields
   const filteredUpdates: Partial<IUser> = {};
   for (const field of allowedFields) {

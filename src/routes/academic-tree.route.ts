@@ -16,10 +16,11 @@ const router = Router();
 
 router.use(authenticate);
 const ACTIVE_CLASSES = [
+  "6a6e31bcd2ea30ebd6a29b2e",
   "6a6e31bdd2ea30ebd6a29ded",
-  "6a6e31bdd2ea30ebd6a29cae",
+  // "6a6e31bdd2ea30ebd6a29cae", // six
   "6a6e31bdd2ea30ebd6a29bab",
-  "6a6e31bcd2ea30ebd6a29a39",
+  // "6a6e31bcd2ea30ebd6a29a39",
 ];
 router.get("/classes", async (req, res) => {
   try {

@@ -11,12 +11,16 @@ export interface ISubjectSubscription {
   expiresAt: Date;
 }
 
+type StreamType = "sicence" | "commerce" | "humanities";
+
 export interface IUser extends Document {
   uid: string;
   email: string;
   name?: string;
   photoURL?: string;
   role: "student" | "admin";
+  class: mongoose.Types.ObjectId;
+  stream?: StreamType; // for ssc and hsc
   institute?: IInstitute;
   subjectWiseSubscription: ISubjectSubscription[];
   subscription: {
@@ -49,6 +53,11 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     name: { type: String, default: "" },
     photoURL: { type: String, default: "" },
+    class: { type: Schema.Types.ObjectId, ref: "Class" },
+    stream: {
+      type: String,
+      enum: ["science", "commerce", "humanities"],
+    },
     role: {
       type: String,
       enum: ["student", "admin"],

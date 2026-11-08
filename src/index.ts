@@ -21,6 +21,7 @@ import questionPdfRoutes from "./routes/question-pdf.routes";
 import questionRoutes from "./routes/question.route";
 import userRoutes from "./routes/user-routes";
 import questionAnalyticsRoutes from "./routes/question-analytics.routes";
+import studyRoutes from "./routes/study.routes";
 
 dotenv.config();
 
@@ -88,6 +89,8 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/payments", paymentRoutes);
 
 app.use("/analytics/question-analytics", questionAnalyticsRoutes);
+
+app.use("/study", studyRoutes);
 
 app.get("/server-time", (req, res) => {
   res.json({ serverTime: new Date().toISOString() });
