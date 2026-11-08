@@ -11,7 +11,13 @@ import mongoose from "mongoose";
 
 export const getAcademicTree = async (req: Request, res: Response) => {
   try {
-    const { classId, upto = "subject", paperId, status = "active" } = req.query;
+    const {
+      classId,
+      upto = "subject",
+      paperId,
+      status = "active",
+      stream,
+    } = req.query;
 
     const authUser = (req as any).user;
     const isAdmin = authUser?.role === "admin";
@@ -29,6 +35,7 @@ export const getAcademicTree = async (req: Request, res: Response) => {
     let subjectQuery: any = {
       class: classId,
       version: "bangla",
+      stream: { $in: stream ? [stream, "generel"] : ["generel"] },
     };
 
     if (!isAdmin) {
