@@ -115,3 +115,13 @@ export const getChapterProgress = async (req: Request, res: Response) => {
     fail(res, err);
   }
 };
+
+export const getDueCount = async (req: Request, res: Response) => {
+  const userId = currentUserId(req, res);
+  if (!userId) return;
+  try {
+    res.status(200).json(await StudyService.getDueCount(userId));
+  } catch (err) {
+    fail(res, err);
+  }
+};

@@ -9,6 +9,7 @@ router.use(authenticate);
 router.get("/queue", c.getQueue);
 router.post("/new", c.startNew);
 router.post("/review", c.submitReview);
+router.get("/count", c.getDueCount);
 router.get("/progress/subject/:subjectId", c.getSubjectProgress);
 router.get("/progress/chapter/:chapterId", c.getChapterProgress);
 

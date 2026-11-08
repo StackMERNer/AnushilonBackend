@@ -111,6 +111,15 @@ export const StudyService = {
     return { totalDue, items };
   },
 
+  async getDueCount(userId: Types.ObjectId) {
+    const filter: Record<string, any> = {
+      user: userId,
+      dueAt: { $lte: new Date() },
+    };
+    const count = await UserCardModel.countDocuments(filter);
+    return { count };
+  },
+
   /** Introduce `count` unseen questions from a chapter (optionally a topic). */
   async startNewCards(
     userId: Types.ObjectId,
