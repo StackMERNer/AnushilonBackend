@@ -29,7 +29,7 @@ const PORT = Number(process.env.PORT) || 5000;
 const allowedOrigins = [
   "http://localhost:3000",
   "https://anushilon.net",
-  "https://www.proshnokosh.com",
+  "https://www.anushilon.net",
   "http://192.168.0.103:3000",
 ];
 const app: Application = express();
