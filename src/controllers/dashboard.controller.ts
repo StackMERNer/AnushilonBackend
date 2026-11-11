@@ -1,84 +1,36 @@
-// controllers/dashboard.controller.ts
+import { Request, Response } from "express";
+import { DashboardService } from "../services/dashboard.service";
 
-import { Request, Response, NextFunction } from "express";
-import { QuestionPaper } from "../models/question-paper.model";
+const fail = (res: Response, err: unknown) => {
+  console.error(err);
+  return res
+    .status(500)
+    .json({ message: "কিছু একটা সমস্যা হয়েছে, আবার চেষ্টা করো" });
+};
 
-export const getDashboardData = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
+export const getSummary = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user?._id) return res.status(401).json({ message: "আবার লগইন করো" });
   try {
-    const userId = (req as any).user?._id;
+    res.status(200).json(await DashboardService.getSummary(user._id));
+  } catch (err) {
+    fail(res, err);
+  }
+};
 
-    if (!userId) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-      return;
-    }
-
-    const now = new Date();
-
-    // First day of current month
-    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    // First day of next month
-    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-    // First day of previous month
-    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-    const [totalPapers, thisMonthPapers, lastMonthPapers, recentPapers] =
-      await Promise.all([
-        // Total papers created by this user
-        QuestionPaper.countDocuments({
-          createdBy: userId,
+export const getSubjects = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user?._id) return res.status(401).json({ message: "আবার লগইন করো" });
+  try {
+    res
+      .status(200)
+      .json(
+        await DashboardService.getSubjects(user._id, {
+          class: user.class,
+          stream: user.stream,
         }),
-
-        // Papers created this month
-        QuestionPaper.countDocuments({
-          createdBy: userId,
-          createdAt: {
-            $gte: startOfThisMonth,
-            $lt: startOfNextMonth,
-          },
-        }),
-
-        // Papers created last month
-        QuestionPaper.countDocuments({
-          createdBy: userId,
-          createdAt: {
-            $gte: startOfLastMonth,
-            $lt: startOfThisMonth,
-          },
-        }),
-
-        // Recent papers
-        QuestionPaper.find({
-          createdBy: userId,
-        })
-          .select(
-            "title class subjects totalMarks duration createdAt updatedAt",
-          )
-          .populate("class", "name")
-          .populate("subjects.subject", "name")
-          .sort({ createdAt: -1 })
-          .limit(5)
-          .lean(),
-      ]);
-
-    res.status(200).json({
-      success: true,
-      data: {
-        totalPapers,
-        thisMonthPapers,
-        lastMonthPapers,
-        recentPapers,
-      },
-    });
-  } catch (error) {
-    next(error);
+      );
+  } catch (err) {
+    fail(res, err);
   }
 };

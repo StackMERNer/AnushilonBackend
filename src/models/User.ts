@@ -11,7 +11,7 @@ export interface ISubjectSubscription {
   expiresAt: Date;
 }
 
-type StreamType = "sicence" | "commerce" | "humanities";
+type StreamType = "science" | "commerce" | "humanities";
 
 export interface IUser extends Document {
   uid: string;

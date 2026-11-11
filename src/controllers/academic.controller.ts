@@ -26,27 +26,14 @@ export const getAcademicTree = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "classId is required" });
     }
 
-    let questionPaper;
+    let subjectQuery: any = { class: classId };
+    // let subjectQuery: any = {
+    //   class: classId,
+    //   version: "bangla",
+    //   stream: { $in: stream ? [stream, "generel"] : ["generel"] },
+    // };
 
-    if (paperId) {
-      questionPaper = (await QuestionPaper.findById(paperId)) as IQuestionPaper;
-    }
-
-    let subjectQuery: any = {
-      class: classId,
-      version: "bangla",
-      stream: { $in: stream ? [stream, "generel"] : ["generel"] },
-    };
-
-    if (!isAdmin) {
-      subjectQuery.isActive = true;
-    }
-
-    if (questionPaper) {
-      subjectQuery._id = { $in: questionPaper.subjects.map((s) => s.subject) };
-    } else if (status === "active") {
-      subjectQuery.isActive = true;
-    }
+    console.log("subjectQuery", subjectQuery);
 
     // 1. Fetch Subjects for selected Class
     const subjects = await SubjectModel.find(subjectQuery)
@@ -66,12 +53,6 @@ export const getAcademicTree = async (req: Request, res: Response) => {
       chapterQuery.isActive = true;
     } else if (status === "active") {
       chapterQuery.isActive = true;
-    }
-
-    if (questionPaper) {
-      chapterQuery._id = {
-        $in: questionPaper.subjects.map((s) => s.chapters).flat(),
-      };
     }
 
     const chapters = await ChapterModel.find(chapterQuery)

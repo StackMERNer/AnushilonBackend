@@ -24,13 +24,14 @@ const QUESTION_FIELDS =
   "refId type context question options correctMcq questions answer boards tags level difficulty sameContextQuesId studyMode";
 
 // ---- totals cache (studyable questions per chapter/topic) ----
-type Field = "chapter" | "topic";
+type Field = "chapter" | "topic" | "subject";
+
 const TOTALS_TTL_MS = 10 * 60 * 1000;
 const totalsCache: Partial<
   Record<Field, { at: number; map: Map<string, number> }>
 > = {};
 
-async function getTotals(field: Field) {
+export async function getTotals(field: Field) {
   const hit = totalsCache[field];
   if (hit && Date.now() - hit.at < TOTALS_TTL_MS) return hit.map;
   const rows = await QuestionModel.aggregate([
@@ -45,7 +46,7 @@ async function getTotals(field: Field) {
 }
 
 // ---- per-user stats grouped by chapter/topic ----
-async function statsBy(
+export async function statsBy(
   userId: Types.ObjectId,
   field: Field,
   match: Record<string, Types.ObjectId>,

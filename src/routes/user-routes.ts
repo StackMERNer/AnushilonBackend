@@ -1,7 +1,5 @@
 // routes for admin
-
 import { Router } from "express";
-import { getDashboardData } from "../controllers/dashboard.controller";
 import { authenticate } from "../middlewares/authMiddleware";
 import {
   getAllUsers,
