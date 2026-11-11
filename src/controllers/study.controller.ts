@@ -2,6 +2,15 @@ import { Request, Response } from "express";
 import { Types } from "mongoose";
 import { StudyService, StudyError } from "../services/study.service";
 
+const parseTypes = (v: unknown): string[] | undefined => {
+  const arr = Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : [];
+  const out = arr
+    .map((s) => String(s).trim())
+    .filter((s) => s && s.length <= 60)
+    .slice(0, 40);
+  return out.length ? out : undefined;
+};
+
 const oid = (v: unknown) =>
   typeof v === "string" && /^[a-f\d]{24}$/i.test(v)
     ? new Types.ObjectId(v)
@@ -38,6 +47,7 @@ export const getQueue = async (req: Request, res: Response) => {
       limit: clamp(req.query.limit, 30, 1, 100),
       chapterId: oid(req.query.chapter) ?? undefined,
       topicId: oid(req.query.topic) ?? undefined,
+      types: parseTypes(req.query.types),
     });
     res.status(200).json(data);
   } catch (err) {
@@ -56,6 +66,7 @@ export const startNew = async (req: Request, res: Response) => {
       chapterId,
       topicId: oid(req.body?.topicId) ?? undefined,
       count: clamp(req.body?.count, 10, 1, 100),
+      types: parseTypes(req.body?.types),
     });
     res.status(200).json(data);
   } catch (err) {

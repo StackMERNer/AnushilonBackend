@@ -267,7 +267,8 @@ const questionSchema = new Schema<IQuestionDocument>(
 questionSchema.index({ chapter: 1, topic: 1, type: 1 });
 
 // Subject-level querying
-questionSchema.index({ subject: 1, type: 1 });
+// questionSchema.index({ subject: 1, type: 1 });
+questionSchema.index({ chapter: 1, studyMode: 1, type: 1 });
 
 questionSchema.index({ subject: 1, chapter: 1, "boards.board": 1 });
 questionSchema.index({ chapter: 1, studyMode: 1 });

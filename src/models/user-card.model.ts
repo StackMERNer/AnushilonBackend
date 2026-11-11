@@ -3,6 +3,7 @@ import { Schema, model, models, Types, Document } from "mongoose";
 export interface IUserCard {
   user: Types.ObjectId;
   question: Types.ObjectId;
+  type?: string;
   // denormalized from the question so progress needs no joins
   subject?: Types.ObjectId;
   chapter?: Types.ObjectId;
@@ -22,6 +23,7 @@ const userCardSchema = new Schema<IUserCardDocument>(
   {
     user: { type: Schema.Types.ObjectId, ref: "AnushilonUser", required: true },
     question: { type: Schema.Types.ObjectId, ref: "Question", required: true },
+    type: { type: String },
     subject: { type: Schema.Types.ObjectId, ref: "Subject" },
     chapter: { type: Schema.Types.ObjectId, ref: "Chapter" },
     topic: { type: Schema.Types.ObjectId, ref: "Topic" },
