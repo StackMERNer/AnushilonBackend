@@ -5,6 +5,7 @@ import { TopicModel } from "../models/topic.model";
 import { UserCardModel } from "../models/user-card.model";
 import { ReviewLogModel } from "../models/review-log.model";
 import { schedule, Rating, MASTERED_DAYS } from "../utils/sm2";
+import { BookmarkService } from "./question-feedback.service";
 
 export class StudyError extends Error {
   constructor(
@@ -138,12 +139,23 @@ export const StudyService = {
       UserCardModel.countDocuments(filter),
     ]);
 
-    const questions = await QuestionModel.find({
-      _id: { $in: cards.map((c: any) => c.question) },
-    })
-      .select(QUESTION_FIELDS)
-      .populate(POPULATE)
-      .lean();
+    // const questions = await QuestionModel.find({
+    //   _id: { $in: cards.map((c: any) => c.question) },
+    // })
+    //   .select(QUESTION_FIELDS)
+    //   .populate(POPULATE)
+    //   .lean();
+
+    const questions = await BookmarkService.markBookmarked(
+      userId,
+      await QuestionModel.find({
+        _id: { $in: cards.map((c: any) => c.question) },
+      })
+        .select(QUESTION_FIELDS)
+        .populate(POPULATE)
+        .lean(),
+    );
+
     const byId = new Map(questions.map((q: any) => [String(q._id), q]));
 
     const items = cards.flatMap((c: any) => {

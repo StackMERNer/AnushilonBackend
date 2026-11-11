@@ -22,6 +22,10 @@ import questionRoutes from "./routes/question.route";
 import userRoutes from "./routes/user-routes";
 import questionAnalyticsRoutes from "./routes/question-analytics.routes";
 import studyRoutes from "./routes/study.routes";
+import {
+  bookmarkRouter,
+  reportRouter,
+} from "./routes/question-feedback.routes";
 
 dotenv.config();
 
@@ -91,6 +95,10 @@ app.use("/payments", paymentRoutes);
 app.use("/analytics/question-analytics", questionAnalyticsRoutes);
 
 app.use("/study", studyRoutes);
+
+app.use("/bookmarks", bookmarkRouter);
+
+app.use("/reports", reportRouter);
 
 app.get("/server-time", (req, res) => {
   res.json({ serverTime: new Date().toISOString() });

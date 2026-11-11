@@ -7,6 +7,7 @@ import {
   hasAllSubjectsActiveSubscription,
 } from "../lib/subscription";
 import { IUser } from "../models/User";
+import { BookmarkService } from "../services/question-feedback.service";
 
 // Interface representing the expected query parameters
 export interface FilteredQuestionsQueryParams {
@@ -45,7 +46,6 @@ export const getFilteredQuestions = async (
       universities,
       questionType,
       year,
-      selectedOnly,
     } = req.query;
 
     let page = Math.max(1, parseInt(reqPage, 10) || 1);
@@ -170,9 +170,14 @@ export const getFilteredQuestions = async (
     const totalPages = Math.ceil(totalItems / limit) || 1;
     const nextPage = page < totalPages ? page + 1 : null;
 
+    const markedQuestions = await BookmarkService.markBookmarked(
+      authUser._id,
+      items,
+    );
+
     // 6. Response matching the PaginatedResponse<T> contract
     res.status(200).json({
-      items,
+      items: markedQuestions,
       totalItems,
       currentPage: page,
       totalPages,
