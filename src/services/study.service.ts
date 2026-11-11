@@ -127,7 +127,6 @@ export const StudyService = {
     };
     if (chapterId) filter.chapter = chapterId;
     if (topicId) filter.topic = topicId;
-    console.log("types", types);
     if (types?.length) filter.type = { $in: types };
 
     const [cards, totalDue] = await Promise.all([
