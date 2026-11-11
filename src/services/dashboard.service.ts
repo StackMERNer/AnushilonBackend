@@ -120,12 +120,13 @@ export const DashboardService = {
   ) {
     if (!user.class) return [];
 
-    const streams = ["general"];
+    const streams = ["generel"];
     if (user.stream) streams.push(user.stream);
 
     const subjects = await SubjectModel.find({
       class: user.class,
       isActive: true,
+      version: "bangla",
       $or: [{ stream: { $in: streams } }, { stream: { $in: [null, ""] } }],
     })
       .sort({ order: 1 })
