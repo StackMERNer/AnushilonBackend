@@ -26,12 +26,12 @@ export const getAcademicTree = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "classId is required" });
     }
 
-    let subjectQuery: any = { class: classId };
-    // let subjectQuery: any = {
-    //   class: classId,
-    //   version: "bangla",
-    //   stream: { $in: stream ? [stream, "generel"] : ["generel"] },
-    // };
+    // let subjectQuery: any = { class: classId };
+    let subjectQuery: any = {
+      class: classId,
+      version: "bangla",
+      stream: { $in: stream ? [stream, "generel"] : ["generel"] },
+    };
 
     console.log("subjectQuery", subjectQuery);
 
